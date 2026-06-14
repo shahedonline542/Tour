@@ -51,22 +51,19 @@ export default function AdminDashboard({
   // States for Edit / Delete operations
   const [editingRegistration, setEditingRegistration] = useState<RegistrationData | null>(null);
   const [editForm, setEditForm] = useState<RegistrationData | null>(null);
-  const [editError, setEditError] = useState<string | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
-  const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
 
   useEffect(() => {
     if (editingRegistration) {
       setEditForm({ ...editingRegistration });
-      setEditError(null);
     } else {
       setEditForm(null);
-      setEditError(null);
     }
   }, [editingRegistration]);
 
   const handleDeleteClick = (id: string, name: string) => {
-    setDeleteTarget({ id, name });
+    if (window.confirm(`আপনি কি নিশ্চিতভাবে "${name}" এর রেজিস্ট্রেশনটি মুছে ফেলতে চান? এটি আর ফিরিয়ে আনা সম্ভব নয়!`)) {
+      onDeleteRegistration(id);
+    }
   };
 
   const handleEditFormSubmit = (e: React.FormEvent) => {
@@ -74,29 +71,29 @@ export default function AdminDashboard({
     if (!editForm) return;
 
     if (!editForm.name.trim()) {
-      setEditError('দয়া করে সঠিক নাম লিখুন');
+      alert('দয়া করে সঠিক নাম লিখুন');
       return;
     }
     if (!editForm.phone.trim()) {
-      setEditError('দয়া করে সঠিক ফোন নম্বর লিখুন');
+      alert('দয়া করে সঠিক ফোন নম্বর লিখুন');
       return;
     }
     if (!editForm.emergencyPhone.trim()) {
-      setEditError('দয়া করে সঠিক জরুরি নম্বর লিখুন');
+      alert('দয়া করে সঠিক জরুরি নম্বর লিখুন');
       return;
     }
 
     if (editForm.paidAlready === 'yes') {
       if (!editForm.paymentMethod) {
-        setEditError('দয়া করে পেমেন্ট মাধ্যম নির্বাচন করুন');
+        alert('দয়া করে পেমেন্ট মাধ্যম নির্বাচন করুন');
         return;
       }
       if (!editForm.paidAmount || isNaN(Number(editForm.paidAmount)) || Number(editForm.paidAmount) <= 0) {
-        setEditError('দয়া করে প্রদত্ত সঠিক টাকার পরিমাণ লিখুন');
+        alert('দয়া করে প্রদত্ত সঠিক টাকার পরিমাণ লিখুন');
         return;
       }
       if (!editForm.transactionId?.trim()) {
-        setEditError('দয়া করে Transaction ID লিখুন');
+        alert('দয়া করে Transaction ID লিখুন');
         return;
       }
     }
@@ -604,7 +601,11 @@ export default function AdminDashboard({
 
                       {registrations.length > 0 && (
                         <button
-                          onClick={() => setShowClearAllConfirm(true)}
+                          onClick={() => {
+                            if (window.confirm('আপনি কি নিশ্চিত যে আপনি স্থানীয় সঞ্চয়স্থানের সমস্ত রেজিস্ট্রেশন মুছে ফেলতে চান? গুগল শিটের ডেটা এতে প্রভাবিত হবে না।')) {
+                              onClearAll();
+                            }
+                          }}
                           className="px-4 py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 hover:bg-rose-500/20 font-bold text-sm flex items-center gap-2 transition cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -803,13 +804,6 @@ export default function AdminDashboard({
               </div>
 
               <form onSubmit={handleEditFormSubmit} className="space-y-5">
-                {editError && (
-                  <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0 animate-bounce" />
-                    <span>{editError}</span>
-                  </div>
-                )}
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Name */}
                   <div className="space-y-1.5">
@@ -1011,98 +1005,6 @@ export default function AdminDashboard({
                   </button>
                 </div>
               </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Custom Delete Confirmation Modal */}
-      <AnimatePresence>
-        {deleteTarget && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
-          >
-            <motion.div
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
-              className="relative w-full max-w-sm bg-[#0F1E36] border border-white/10 rounded-3xl p-6 text-center shadow-2xl"
-            >
-              <div className="w-14 h-14 rounded-full bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto mb-4">
-                <Trash2 className="w-6 h-6" />
-              </div>
-              <h3 className="text-base font-bold text-white mb-2 font-sans">রেজিস্ট্রেশন মুছে ফেলার নিশ্চয়তা</h3>
-              <p className="text-slate-300 text-xs font-sans px-2 mb-6 leading-relaxed">
-                আপনি কি নিশ্চিতভাবে <span className="text-rose-400 font-bold">"{deleteTarget.name}"</span> এর রেজিস্ট্রেশনটি মুছে ফেলতে চান? এটি আর ফিরিয়ে আনা সম্ভব নয়!
-              </p>
-              <div className="flex justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setDeleteTarget(null)}
-                  className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-xs transition duration-150 cursor-pointer"
-                >
-                  বাতিল করুন
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onDeleteRegistration(deleteTarget.id);
-                    setDeleteTarget(null);
-                  }}
-                  className="px-5 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs shadow-lg shadow-rose-500/20 active:scale-95 transition cursor-pointer"
-                >
-                  হ্যাঁ, মুছে ফেলুন
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Custom Clear All Confirmation Modal */}
-      <AnimatePresence>
-        {showClearAllConfirm && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
-          >
-            <motion.div
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
-              className="relative w-full max-w-sm bg-[#0F1E36] border border-white/10 rounded-3xl p-6 text-center shadow-2xl"
-            >
-              <div className="w-14 h-14 rounded-full bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto mb-4">
-                <AlertCircle className="w-6 h-6 animate-pulse" />
-              </div>
-              <h3 className="text-base font-bold text-white mb-2 font-sans">সকল স্থানীয় ডেটা মুছে ফেলার নিশ্চয়তা</h3>
-              <p className="text-slate-300 text-xs font-sans px-2 mb-6 leading-relaxed">
-                আপনি কি নিশ্চিত যে আপনি স্থানীয় সঞ্চয়স্থানের সমস্ত রেজিস্ট্রেশন মুছে ফেলতে চান? গুগল শিট সিঙ্কের ডেটা এতে প্রভাবিত হবে না।
-              </p>
-              <div className="flex justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowClearAllConfirm(false)}
-                  className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-xs transition duration-150 cursor-pointer"
-                >
-                  বাতিল করুন
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onClearAll();
-                    setShowClearAllConfirm(false);
-                  }}
-                  className="px-5 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs shadow-lg shadow-rose-500/20 active:scale-95 transition cursor-pointer"
-                >
-                  হ্যাঁ, সব মুছুন
-                </button>
-              </div>
             </motion.div>
           </motion.div>
         )}
