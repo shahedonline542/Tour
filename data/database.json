@@ -1,0 +1,47 @@
+{
+  "passwordHash": "4f98cc39dc364a4157e3ab41d3fa55e49877e1bbfa24e9e8f9811435ceef8d19",
+  "appsScriptUrl": "",
+  "registrations": [
+    {
+      "id": "test_id",
+      "timestamp": "১৪/৬/২০২৬",
+      "name": "Test User",
+      "phone": "01700000000",
+      "participation": "yes",
+      "hasFamily": "no",
+      "familyCount": 0,
+      "emergencyPhone": "01700000000",
+      "notes": "Test notes",
+      "agreement": true,
+      "paidAlready": "no"
+    },
+    {
+      "id": "mock_1",
+      "timestamp": "১৪/৬/২০২৬, সকাল ১০:১৮:৩০",
+      "name": "জি এম রবিউল হাসান",
+      "phone": "01964334759",
+      "participation": "yes",
+      "hasFamily": "yes",
+      "familyCount": 1,
+      "emergencyPhone": "01712345678",
+      "notes": "খুলনা স্টেশন থেকে সরাসরি যাত্রা করবো এবং ফিরবো। খাবারের ঝাল কম হলে ভালো হয়।",
+      "agreement": true,
+      "paidAlready": "no",
+      "adminPaymentStatus": "Unpaid"
+    },
+    {
+      "id": "mock_2",
+      "timestamp": "১৪/৬/২০২৬, সকাল ১০:২৫:৪৫",
+      "name": "পাপড়ি চক্রবর্তী",
+      "phone": "01911122233",
+      "participation": "yes",
+      "hasFamily": "no",
+      "familyCount": 0,
+      "emergencyPhone": "01888777666",
+      "notes": "আমাদের মার্কেটিং বিভাগের (২য় বর্ষ) সকলের স্বতঃস্ফূর্ত অংশগ্রহণ কামনা করছি!",
+      "agreement": true,
+      "paidAlready": "no",
+      "adminPaymentStatus": "Unpaid"
+    }
+  ]
+}

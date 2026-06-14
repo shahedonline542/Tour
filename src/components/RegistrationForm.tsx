@@ -153,7 +153,22 @@ export default function RegistrationForm({ appsScriptUrl, onSuccess }: Registrat
       });
 
       if (!serverRes.ok) {
-        throw new Error('সার্ভারে ডেটা পাঠাতে ব্যর্থ হয়েছে!');
+        let errMsg = 'সার্ভারে ডেটা পাঠাতে ব্যর্থ হয়েছে!';
+        try {
+          const contentType = serverRes.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const errData = await serverRes.json();
+            errMsg = errData.error || errMsg;
+          } else {
+            errMsg = `সার্ভার ত্রুটি (স্ট্যাটাস কোড: ${serverRes.status})।`;
+          }
+        } catch (_) {}
+        throw new Error(errMsg);
+      }
+
+      const contentType = serverRes.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('সার্ভার থেকে সঠিক ফরম্যাটে (JSON) রেসপন্স আসেনি।');
       }
 
       const responseJson = await serverRes.json();
@@ -186,7 +201,7 @@ export default function RegistrationForm({ appsScriptUrl, onSuccess }: Registrat
     } catch (e: any) {
       console.error('Submission failed', e);
       // Even if network fails, we recorded locally, but indicate network state
-      setSubmitError('সার্ভারে ডেটা পাঠাতে সমস্যা হয়েছে। তবে চিন্তা করবেন না, আমরা ডেটাটি সাময়িকভাবে ব্রাউজারে সংরক্ষণ করেছি।');
+      setSubmitError(`সার্ভারে ডেটা পাঠাতে সমস্যা হয়েছে। (ত্রুটি: ${e.message || e})। তবে চিন্তা করবেন না, আমরা ডেটাটি সাময়িকভাবে ব্রাউজারে সংরক্ষণ করেছি।`);
     } finally {
       setIsSubmitting(false);
     }
