@@ -261,18 +261,28 @@ export default function AdminDashboard({
       });
 
       if (res.ok) {
-        const data = await res.json();
-        onTokenChange(data.token);
-        setIsAuthenticated(true);
-        setPassword('');
-        setPasswordError('');
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const data = await res.json();
+          onTokenChange(data.token);
+          setIsAuthenticated(true);
+          setPassword('');
+          setPasswordError('');
+        } else {
+          throw new Error('সার্ভার থেকে সঠিক ফরম্যাটে (JSON) রেসপন্স আসেনি।');
+        }
       } else {
-        const errorData = await res.json();
-        setPasswordError(errorData.error || 'ভুল পাসওয়ার্ড। দয়া করে আবার চেষ্টা করুন।');
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await res.json();
+          setPasswordError(errorData.error || 'ভুল পাসওয়ার্ড। দয়া করে আবার চেষ্টা করুন।');
+        } else {
+          setPasswordError(`সার্ভার ত্রুটি (স্ট্যাটাস কোড: ${res.status})। দয়া করে এডমিন প্যানেল রিলোড দিন।`);
+        }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Login error:', err);
-      setPasswordError('সার্ভারের সাথে যোগাযোগ করতে সমস্যা হচ্ছে।');
+      setPasswordError(err?.message || 'সার্ভারের সাথে যোগাযোগ করতে সমস্যা হচ্ছে।');
     }
   };
 
@@ -311,12 +321,17 @@ export default function AdminDashboard({
           setShowPasswordChange(false);
         }, 2500);
       } else {
-        const errData = await res.json();
-        setPasswordChangeError(errData.error || 'পাসওয়ার্ডটি পরিবর্তন করা যায়নি!');
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errData = await res.json();
+          setPasswordChangeError(errData.error || 'পাসওয়ার্ডটি পরিবর্তন করা যায়নি!');
+        } else {
+          setPasswordChangeError(`সার্ভার ত্রুটি (স্ট্যাটাস কোড: ${res.status})। পাসওয়ার্ড পরিবর্তন করা যায়নি।`);
+        }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Password change error:', err);
-      setPasswordChangeError('সার্ভার ত্রুটি! পাসওয়ার্ড পরিবর্তন ব্যর্থ হয়েছে।');
+      setPasswordChangeError(err?.message || 'সার্ভার ত্রুটি! পাসওয়ার্ড পরিবর্তন ব্যর্থ হয়েছে।');
     }
   };
 
