@@ -16,6 +16,8 @@ interface AdminDashboardProps {
   onUpdateUrl: (url: string) => void;
   onUpdateRegistration: (updatedReg: RegistrationData) => void;
   onDeleteRegistration: (id: string) => void;
+  token: string;
+  onTokenChange: (newToken: string) => void;
 }
 
 // Compact, standard synchronous SHA-256 implementation
@@ -125,23 +127,14 @@ export default function AdminDashboard({
   appsScriptUrl,
   onUpdateUrl,
   onUpdateRegistration,
-  onDeleteRegistration
+  onDeleteRegistration,
+  token,
+  onTokenChange
 }: AdminDashboardProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-
-  const [curPasswordHash, setCurPasswordHash] = useState(() => {
-    const saved = localStorage.getItem('admin_dashboard_password') || 'marketingtour2026';
-    if (isSha256(saved)) {
-      return saved;
-    } else {
-      const hashed = hashPassword(saved);
-      localStorage.setItem('admin_dashboard_password', hashed);
-      return hashed;
-    }
-  });
 
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [oldPassword, setOldPassword] = useState('');
@@ -161,6 +154,15 @@ export default function AdminDashboard({
   const [editError, setEditError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
+
+  // Synchronize authenticated state with active token presence
+  useEffect(() => {
+    if (token) {
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
+    }
+  }, [token]);
 
   useEffect(() => {
     if (editingRegistration) {
@@ -246,25 +248,39 @@ export default function AdminDashboard({
 
   const latestRegistration = registrations.length > 0 ? registrations[0] : null;
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (hashPassword(password) === curPasswordHash) {
-      setIsAuthenticated(true);
-      setPasswordError('');
-    } else {
-      setPasswordError('ভুল পাসওয়ার্ড। দয়া করে আবার চেষ্টা করুন।');
+    setPasswordError('');
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        onTokenChange(data.token);
+        setIsAuthenticated(true);
+        setPassword('');
+        setPasswordError('');
+      } else {
+        const errorData = await res.json();
+        setPasswordError(errorData.error || 'ভুল পাসওয়ার্ড। দয়া করে আবার চেষ্টা করুন।');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setPasswordError('সার্ভারের সাথে যোগাযোগ করতে সমস্যা হচ্ছে।');
     }
   };
 
-  const handlePasswordChange = (e: React.FormEvent) => {
+  const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordChangeError('');
     setPasswordChangeSuccess('');
 
-    if (hashPassword(oldPassword) !== curPasswordHash) {
-      setPasswordChangeError('পুরাতন পাসওয়ার্ডটি সঠিক নয়!');
-      return;
-    }
     if (newPassword.trim().length < 4) {
       setPasswordChangeError('নতুন পাসওয়ার্ডটি অত্যন্ত ছোট! কমপক্ষে ৪ অক্ষরের হতে হবে।');
       return;
@@ -274,19 +290,49 @@ export default function AdminDashboard({
       return;
     }
 
-    // Pass
-    const hashedNew = hashPassword(newPassword);
-    localStorage.setItem('admin_dashboard_password', hashedNew);
-    setCurPasswordHash(hashedNew);
-    setPasswordChangeSuccess('পাসওয়ার্ডটি সফলভাবে পরিবর্তন করা হয়েছে!');
-    setOldPassword('');
-    setNewPassword('');
-    setConfirmNewPassword('');
+    try {
+      const res = await fetch('/api/admin/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ oldPassword, newPassword })
+      });
 
-    setTimeout(() => {
-      setPasswordChangeSuccess('');
-      setShowPasswordChange(false);
-    }, 2500);
+      if (res.ok) {
+        setPasswordChangeSuccess('পাসওয়ার্ডটি সফলভাবে পরিবর্তন করা হয়েছে!');
+        setOldPassword('');
+        setNewPassword('');
+        setConfirmNewPassword('');
+
+        setTimeout(() => {
+          setPasswordChangeSuccess('');
+          setShowPasswordChange(false);
+        }, 2500);
+      } else {
+        const errData = await res.json();
+        setPasswordChangeError(errData.error || 'পাসওয়ার্ডটি পরিবর্তন করা যায়নি!');
+      }
+    } catch (err) {
+      console.error('Password change error:', err);
+      setPasswordChangeError('সার্ভার ত্রুটি! পাসওয়ার্ড পরিবর্তন ব্যর্থ হয়েছে।');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/logout', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+    onTokenChange('');
+    setIsAuthenticated(false);
   };
 
   const handleExportCSV = () => {
@@ -447,7 +493,7 @@ export default function AdminDashboard({
                   {showPasswordChange ? 'ড্যাশবোর্ড দেখুন' : 'পাসওয়ার্ড পরিবর্তন'}
                 </button>
                 <button
-                  onClick={() => setIsAuthenticated(false)}
+                  onClick={handleLogout}
                   className="px-4 py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 hover:bg-rose-500/15 text-sm font-semibold flex items-center gap-2 transition cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />

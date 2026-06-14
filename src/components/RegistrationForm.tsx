@@ -143,44 +143,31 @@ export default function RegistrationForm({ appsScriptUrl, onSuccess }: Registrat
     };
 
     try {
-      // 1. Double save in local storage first to always guarantee storage
+      // 1. Submit to our central Express Server Backend
+      const serverRes = await fetch('/api/registrations/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submissionData),
+      });
+
+      if (!serverRes.ok) {
+        throw new Error('সার্ভারে ডেটা পাঠাতে ব্যর্থ হয়েছে!');
+      }
+
+      const responseJson = await serverRes.json();
+      const finalSubmission = responseJson.data || submissionData;
+
+      // 2. Double save in local storage first to always guarantee storage as fallback
       const existing = localStorage.getItem('marketing_tour_registrations');
       const list = existing ? JSON.parse(existing) : [];
-      list.unshift(submissionData);
+      list.unshift(finalSubmission);
       localStorage.setItem('marketing_tour_registrations', JSON.stringify(list));
-
-      // 2. Fetch submission if AppsScript REST URL is available
-      if (appsScriptUrl && appsScriptUrl.trim() !== '') {
-        // Prepare URL encoded or JSON parameters as requested by Apps Script setup
-        const urlParams = new URLSearchParams();
-        urlParams.append('timestamp', submissionData.timestamp);
-        urlParams.append('name', submissionData.name);
-        urlParams.append('phone', submissionData.phone);
-        urlParams.append('participation', submissionData.participation === 'yes' ? 'হ্যাঁ' : submissionData.participation === 'no' ? 'না' : 'এখনও নিশ্চিত নই');
-        urlParams.append('hasFamily', submissionData.hasFamily === 'yes' ? 'হ্যাঁ' : 'না');
-        urlParams.append('familyCount', String(submissionData.familyCount));
-        urlParams.append('emergencyPhone', submissionData.emergencyPhone);
-        urlParams.append('notes', submissionData.notes);
-        urlParams.append('paidAlready', submissionData.paidAlready === 'yes' ? 'হ্যাঁ' : 'না');
-        urlParams.append('paymentMethod', submissionData.paymentMethod || '');
-        urlParams.append('paidAmount', submissionData.paidAmount || '');
-        urlParams.append('transactionId', submissionData.transactionId || '');
-        urlParams.append('adminPaymentStatus', submissionData.adminPaymentStatus || 'Unpaid');
-
-        // We use standard no-cors or standard fetch for Apps Script
-        await fetch(appsScriptUrl, {
-          method: 'POST',
-          mode: 'no-cors', // standard for GAS Web App redirects
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: urlParams.toString(),
-        });
-      }
 
       // Success
       setIsSuccess(true);
-      onSuccess(submissionData);
+      onSuccess(finalSubmission);
       // Reset form
       setFormData({
         name: '',

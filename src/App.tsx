@@ -14,51 +14,20 @@ export default function App() {
   const [view, setView] = useState<'user' | 'admin'>('user');
   const [registrations, setRegistrations] = useState<RegistrationData[]>([]);
   const [appsScriptUrl, setAppsScriptUrl] = useState<string>('');
+  const [authToken, setAuthToken] = useState<string>(() => localStorage.getItem('admin_token') || '');
 
-  // Local storage loading & pre-populating mock records for seamless testing
+  // 1. Fetch appsScriptUrl public configuration from server on mount
   useEffect(() => {
-    // 1. Get Google Apps Script Web App URL
-    const savedUrl = localStorage.getItem('marketing_tour_script_url');
-    if (savedUrl) {
-      setAppsScriptUrl(savedUrl);
-    }
-
-    // 2. Load registrations or pre-populate with mock samples
-    const savedRegs = localStorage.getItem('marketing_tour_registrations');
-    if (savedRegs) {
-      setRegistrations(JSON.parse(savedRegs));
-    } else {
-      const mockData: RegistrationData[] = [
-        {
-          id: 'mock_1',
-          timestamp: '১৪/৬/২০২৬, সকাল ১০:১৮:৩০',
-          name: 'জি এম রবিউল হাসান',
-          phone: '01964334759',
-          participation: 'yes',
-          hasFamily: 'yes',
-          familyCount: 1,
-          emergencyPhone: '01712345678',
-          notes: 'খুলনা স্টেশন থেকে সরাসরি যাত্রা করবো এবং ফিরবো। খাবারের ঝাল কম হলে ভালো হয়।',
-          agreement: true
-        },
-        {
-          id: 'mock_2',
-          timestamp: '১৪/৬/২০২৬, সকাল ১০:২৫:৪৫',
-          name: 'পাপড়ি চক্রবর্তী',
-          phone: '01911122233',
-          participation: 'yes',
-          hasFamily: 'no',
-          familyCount: 0,
-          emergencyPhone: '01888777666',
-          notes: 'আমাদের মার্কেটিং বিভাগের (২য় বর্ষ) সকলের স্বতঃস্ফূর্ত অংশগ্রহণ কামনা করছি!',
-          agreement: true
+    fetch('/api/public-config')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.appsScriptUrl) {
+          setAppsScriptUrl(data.appsScriptUrl);
         }
-      ];
-      localStorage.setItem('marketing_tour_registrations', JSON.stringify(mockData));
-      setRegistrations(mockData);
-    }
+      })
+      .catch((err) => console.error('Failed to load public config', err));
 
-    // 3. Simple URL router mapping
+    // Router hash mapping
     const handleUrlChange = () => {
       const path = window.location.pathname;
       const hash = window.location.hash;
@@ -79,41 +48,149 @@ export default function App() {
     };
   }, []);
 
+  // 2. Fetch registrations from secure server API when authenticated
+  useEffect(() => {
+    if (!authToken) {
+      setRegistrations([]);
+      return;
+    }
+
+    fetch('/api/registrations', {
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      }
+    })
+      .then((res) => {
+        if (!res.ok) {
+          if (res.status === 401) {
+            localStorage.removeItem('admin_token');
+            setAuthToken('');
+          }
+          throw new Error('Unauthorized');
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setRegistrations(data);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load registrations:', err);
+      });
+  }, [authToken]);
+
   const handleNewRegistration = (newData: RegistrationData) => {
     setRegistrations((prev) => [newData, ...prev]);
   };
 
-  const handleUpdateRegistration = (updatedReg: RegistrationData) => {
-    setRegistrations((prev) => {
-      const newList = prev.map((r) => (r.id === updatedReg.id ? updatedReg : r));
-      localStorage.setItem('marketing_tour_registrations', JSON.stringify(newList));
-      return newList;
-    });
-  };
-
-  const handleDeleteRegistration = (id: string) => {
-    setRegistrations((prev) => {
-      const newList = prev.filter((r) => r.id !== id);
-      localStorage.setItem('marketing_tour_registrations', JSON.stringify(newList));
-      return newList;
-    });
-  };
-
-  const handleRefreshData = () => {
-    const savedRegs = localStorage.getItem('marketing_tour_registrations');
-    if (savedRegs) {
-      setRegistrations(JSON.parse(savedRegs));
+  const handleUpdateRegistration = async (updatedReg: RegistrationData) => {
+    if (!authToken) return;
+    try {
+      const res = await fetch(`/api/registrations/${updatedReg.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify(updatedReg)
+      });
+      if (res.ok) {
+        setRegistrations((prev) => prev.map((r) => (r.id === updatedReg.id ? updatedReg : r)));
+      } else if (res.status === 401) {
+        localStorage.removeItem('admin_token');
+        setAuthToken('');
+      }
+    } catch (err) {
+      console.error('Failed to update registration:', err);
     }
   };
 
-  const handleClearLocalData = () => {
-    localStorage.removeItem('marketing_tour_registrations');
-    setRegistrations([]);
+  const handleDeleteRegistration = async (id: string) => {
+    if (!authToken) return;
+    try {
+      const res = await fetch(`/api/registrations/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+      if (res.ok) {
+        setRegistrations((prev) => prev.filter((r) => r.id !== id));
+      } else if (res.status === 401) {
+        localStorage.removeItem('admin_token');
+        setAuthToken('');
+      }
+    } catch (err) {
+      console.error('Failed to delete registration:', err);
+    }
   };
 
-  const handleUpdateAppsScriptUrl = (url: string) => {
-    localStorage.setItem('marketing_tour_script_url', url);
-    setAppsScriptUrl(url);
+  const handleRefreshData = () => {
+    if (!authToken) return;
+    fetch('/api/registrations', {
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      }
+    })
+      .then((res) => {
+        if (!res.ok) {
+          if (res.status === 401) {
+            localStorage.removeItem('admin_token');
+            setAuthToken('');
+          }
+          throw new Error('Unauthorized');
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setRegistrations(data);
+        }
+      })
+      .catch((err) => console.error('Failed to refresh data:', err));
+  };
+
+  const handleClearLocalData = async () => {
+    if (!authToken) return;
+    try {
+      const res = await fetch('/api/registrations/clear', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+      if (res.ok) {
+        setRegistrations([]);
+      } else if (res.status === 401) {
+        localStorage.removeItem('admin_token');
+        setAuthToken('');
+      }
+    } catch (err) {
+      console.error('Failed to clear registrations:', err);
+    }
+  };
+
+  const handleUpdateAppsScriptUrl = async (url: string) => {
+    if (!authToken) return;
+    try {
+      const res = await fetch('/api/admin/config', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({ appsScriptUrl: url })
+      });
+      if (res.ok) {
+        setAppsScriptUrl(url);
+      } else if (res.status === 401) {
+        localStorage.removeItem('admin_token');
+        setAuthToken('');
+      }
+    } catch (err) {
+      console.error('Failed to update URL:', err);
+    }
   };
 
   const scrollToRegistration = () => {
@@ -251,6 +328,15 @@ export default function App() {
                 onUpdateUrl={handleUpdateAppsScriptUrl}
                 onUpdateRegistration={handleUpdateRegistration}
                 onDeleteRegistration={handleDeleteRegistration}
+                token={authToken}
+                onTokenChange={(newToken) => {
+                  if (newToken) {
+                    localStorage.setItem('admin_token', newToken);
+                  } else {
+                    localStorage.removeItem('admin_token');
+                  }
+                  setAuthToken(newToken);
+                }}
               />
             </motion.div>
           )}
