@@ -143,46 +143,44 @@ export default function RegistrationForm({ appsScriptUrl, onSuccess }: Registrat
     };
 
     try {
-      // 1. Submit to our central Express Server Backend
-      const serverRes = await fetch('/api/registrations/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submissionData),
-      });
-
-      if (!serverRes.ok) {
-        let errMsg = 'সার্ভারে ডেটা পাঠাতে ব্যর্থ হয়েছে!';
-        try {
-          const contentType = serverRes.headers.get('content-type');
-          if (contentType && contentType.includes('application/json')) {
-            const errData = await serverRes.json();
-            errMsg = errData.error || errMsg;
-          } else {
-            errMsg = `সার্ভার ত্রুটি (স্ট্যাটাস কোড: ${serverRes.status})।`;
-          }
-        } catch (_) {}
-        throw new Error(errMsg);
-      }
-
-      const contentType = serverRes.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('সার্ভার থেকে সঠিক ফরম্যাটে (JSON) রেসপন্স আসেনি।');
-      }
-
-      const responseJson = await serverRes.json();
-      const finalSubmission = responseJson.data || submissionData;
-
-      // 2. Double save in local storage first to always guarantee storage as fallback
+      // 1. Double save in local storage first to always guarantee storage
       const existing = localStorage.getItem('marketing_tour_registrations');
       const list = existing ? JSON.parse(existing) : [];
-      list.unshift(finalSubmission);
+      list.unshift(submissionData);
       localStorage.setItem('marketing_tour_registrations', JSON.stringify(list));
+
+      // 2. Fetch submission if AppsScript REST URL is available
+      if (appsScriptUrl && appsScriptUrl.trim() !== '') {
+        // Prepare URL encoded or JSON parameters as requested by Apps Script setup
+        const urlParams = new URLSearchParams();
+        urlParams.append('timestamp', submissionData.timestamp);
+        urlParams.append('name', submissionData.name);
+        urlParams.append('phone', submissionData.phone);
+        urlParams.append('participation', submissionData.participation === 'yes' ? 'হ্যাঁ' : submissionData.participation === 'no' ? 'না' : 'এখনও নিশ্চিত নই');
+        urlParams.append('hasFamily', submissionData.hasFamily === 'yes' ? 'হ্যাঁ' : 'না');
+        urlParams.append('familyCount', String(submissionData.familyCount));
+        urlParams.append('emergencyPhone', submissionData.emergencyPhone);
+        urlParams.append('notes', submissionData.notes);
+        urlParams.append('paidAlready', submissionData.paidAlready === 'yes' ? 'হ্যাঁ' : 'না');
+        urlParams.append('paymentMethod', submissionData.paymentMethod || '');
+        urlParams.append('paidAmount', submissionData.paidAmount || '');
+        urlParams.append('transactionId', submissionData.transactionId || '');
+        urlParams.append('adminPaymentStatus', submissionData.adminPaymentStatus || 'Unpaid');
+
+        // We use standard no-cors or standard fetch for Apps Script
+        await fetch(appsScriptUrl, {
+          method: 'POST',
+          mode: 'no-cors', // standard for GAS Web App redirects
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: urlParams.toString(),
+        });
+      }
 
       // Success
       setIsSuccess(true);
-      onSuccess(finalSubmission);
+      onSuccess(submissionData);
       // Reset form
       setFormData({
         name: '',
@@ -201,7 +199,7 @@ export default function RegistrationForm({ appsScriptUrl, onSuccess }: Registrat
     } catch (e: any) {
       console.error('Submission failed', e);
       // Even if network fails, we recorded locally, but indicate network state
-      setSubmitError(`সার্ভারে ডেটা পাঠাতে সমস্যা হয়েছে। (ত্রুটি: ${e.message || e})। তবে চিন্তা করবেন না, আমরা ডেটাটি সাময়িকভাবে ব্রাউজারে সংরক্ষণ করেছি।`);
+      setSubmitError('সার্ভারে ডেটা পাঠাতে সমস্যা হয়েছে। তবে চিন্তা করবেন না, আমরা ডেটাটি সাময়িকভাবে ব্রাউজারে সংরক্ষণ করেছি।');
     } finally {
       setIsSubmitting(false);
     }
