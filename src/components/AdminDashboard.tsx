@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   Lock, Search, Download, RefreshCw, LogOut, Users, CheckCircle2,
   AlertCircle, ChevronRight, FileSpreadsheet, Eye, EyeOff, Settings, Trash2, ShieldCheck,
-  CreditCard
+  CreditCard, Edit
 } from 'lucide-react';
 import { RegistrationData } from '../types';
 import AppsScriptSetup from './AppsScriptSetup';
@@ -15,6 +15,7 @@ interface AdminDashboardProps {
   appsScriptUrl: string;
   onUpdateUrl: (url: string) => void;
   onUpdateRegistration: (updatedReg: RegistrationData) => void;
+  onDeleteRegistration: (id: string) => void;
 }
 
 export default function AdminDashboard({
@@ -23,7 +24,8 @@ export default function AdminDashboard({
   onClearAll,
   appsScriptUrl,
   onUpdateUrl,
-  onUpdateRegistration
+  onUpdateRegistration,
+  onDeleteRegistration
 }: AdminDashboardProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
@@ -45,6 +47,63 @@ export default function AdminDashboard({
   const [filterParticipation, setFilterParticipation] = useState<string>('all');
   const [filterPaymentStatus, setFilterPaymentStatus] = useState<string>('all');
   const [showConfig, setShowConfig] = useState(false);
+
+  // States for Edit / Delete operations
+  const [editingRegistration, setEditingRegistration] = useState<RegistrationData | null>(null);
+  const [editForm, setEditForm] = useState<RegistrationData | null>(null);
+  const [editError, setEditError] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
+
+  useEffect(() => {
+    if (editingRegistration) {
+      setEditForm({ ...editingRegistration });
+      setEditError(null);
+    } else {
+      setEditForm(null);
+      setEditError(null);
+    }
+  }, [editingRegistration]);
+
+  const handleDeleteClick = (id: string, name: string) => {
+    setDeleteTarget({ id, name });
+  };
+
+  const handleEditFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editForm) return;
+
+    if (!editForm.name.trim()) {
+      setEditError('দয়া করে সঠিক নাম লিখুন');
+      return;
+    }
+    if (!editForm.phone.trim()) {
+      setEditError('দয়া করে সঠিক ফোন নম্বর লিখুন');
+      return;
+    }
+    if (!editForm.emergencyPhone.trim()) {
+      setEditError('দয়া করে সঠিক জরুরি নম্বর লিখুন');
+      return;
+    }
+
+    if (editForm.paidAlready === 'yes') {
+      if (!editForm.paymentMethod) {
+        setEditError('দয়া করে পেমেন্ট মাধ্যম নির্বাচন করুন');
+        return;
+      }
+      if (!editForm.paidAmount || isNaN(Number(editForm.paidAmount)) || Number(editForm.paidAmount) <= 0) {
+        setEditError('দয়া করে প্রদত্ত সঠিক টাকার পরিমাণ লিখুন');
+        return;
+      }
+      if (!editForm.transactionId?.trim()) {
+        setEditError('দয়া করে Transaction ID লিখুন');
+        return;
+      }
+    }
+
+    onUpdateRegistration(editForm);
+    setEditingRegistration(null);
+  };
 
   // Stats Calculations
   const totalRegistrations = registrations.length;
@@ -545,11 +604,7 @@ export default function AdminDashboard({
 
                       {registrations.length > 0 && (
                         <button
-                          onClick={() => {
-                            if (window.confirm('আপনি কি নিশ্চিত যে আপনি স্থানীয় সঞ্চয়স্থানের সমস্ত রেজিস্ট্রেশন মুছে ফেলতে চান? গুগল শিটের ডেটা এতে প্রভাবিত হবে না।')) {
-                              onClearAll();
-                            }
-                          }}
+                          onClick={() => setShowClearAllConfirm(true)}
                           className="px-4 py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 hover:bg-rose-500/20 font-bold text-sm flex items-center gap-2 transition cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -574,12 +629,13 @@ export default function AdminDashboard({
                           <th className="p-4 font-sans font-medium">অগ্রিম পেমেন্ট?</th>
                           <th className="p-4 font-sans font-medium">Transaction ID</th>
                           <th className="p-4 font-sans font-medium">পেমেন্ট স্ট্যাটাস</th>
+                          <th className="p-4 font-sans font-medium text-center">অ্যাকশন</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5 text-xs md:text-sm text-slate-200">
                         {filteredRegistrations.length === 0 ? (
                           <tr>
-                            <td colSpan={10} className="p-12 text-center text-slate-500">
+                            <td colSpan={11} className="p-12 text-center text-slate-500">
                               কোনো রেজিস্ট্রেশন তথ্য খুঁজে পাওয়া যায়নি।
                             </td>
                           </tr>
@@ -666,6 +722,26 @@ export default function AdminDashboard({
                                   <option value="Unpaid" className="bg-slate-900 text-rose-300">🔴 Unpaid</option>
                                 </select>
                               </td>
+                              <td className="p-4 text-center whitespace-nowrap">
+                                <div className="flex justify-center items-center gap-1.5">
+                                  <button
+                                    onClick={() => setEditingRegistration(item)}
+                                    className="px-2.5 py-1.5 rounded-lg bg-teal-500/10 hover:bg-teal-500/15 text-[#2DD4BF] border border-teal-500/20 hover:border-[#2DD4BF]/40 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                                    title="সম্পাদনা করুন"
+                                  >
+                                    <Edit className="w-3.5 h-3.5" />
+                                    সম্পাদনা
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteClick(item.id, item.name)}
+                                    className="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/15 text-rose-300 border border-rose-500/20 hover:border-rose-500/40 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                                    title="মুছে ফেলুন"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    মুছুন
+                                  </button>
+                                </div>
+                              </td>
                             </tr>
                           ))
                         )}
@@ -694,6 +770,340 @@ export default function AdminDashboard({
                 </div>
               </>
             )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Edit Registration Modal */}
+      <AnimatePresence>
+        {editingRegistration && editForm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="relative w-full max-w-2xl bg-[#0F1E36] border border-white/10 rounded-3xl p-6 md:p-8 text-left shadow-2xl max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10"
+            >
+              <div className="flex justify-between items-center border-b border-white/5 pb-4 mb-6">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">✏️</span>
+                  <h3 className="text-xl font-bold font-sans text-white">রেজিস্ট্রেশন তথ্য সম্পাদনা</h3>
+                </div>
+                <button
+                  onClick={() => setEditingRegistration(null)}
+                  className="p-1.5 px-3 text-xs py-1 rounded-lg bg-white/5 hover:bg-white/15 text-slate-300 transition duration-150 cursor-pointer"
+                >
+                  বন্ধ করুন
+                </button>
+              </div>
+
+              <form onSubmit={handleEditFormSubmit} className="space-y-5">
+                {editError && (
+                  <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 animate-bounce" />
+                    <span>{editError}</span>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Name */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-slate-400">পূর্ণ নাম</label>
+                    <input
+                      type="text"
+                      value={editForm.name}
+                      onChange={(e) => setEditForm(prev => prev ? { ...prev, name: e.target.value } : null)}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950/50 border border-white/10 text-white text-sm focus:outline-none focus:ring-1 focus:ring-amber-500 font-sans"
+                      required
+                    />
+                  </div>
+
+                  {/* Mobile Number */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-slate-400">মোবাইল নম্বর</label>
+                    <input
+                      type="text"
+                      value={editForm.phone}
+                      onChange={(e) => setEditForm(prev => prev ? { ...prev, phone: e.target.value } : null)}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950/50 border border-white/10 text-white font-sans text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      required
+                    />
+                  </div>
+
+                  {/* Participation Status */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-slate-400">অংশগ্রহণ করবেন?</label>
+                    <select
+                      value={editForm.participation}
+                      onChange={(e) => setEditForm(prev => prev ? { ...prev, participation: e.target.value as 'yes' | 'no' | 'maybe' } : null)}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950/50 border border-white/10 text-white text-sm focus:outline-none focus:ring-1 focus:ring-amber-500 text-slate-200"
+                    >
+                      <option value="yes" className="bg-slate-900">হ্যাঁ (Yes)</option>
+                      <option value="no" className="bg-slate-900">না (No)</option>
+                      <option value="maybe" className="bg-slate-900">নিশ্চিত নই (Maybe)</option>
+                    </select>
+                  </div>
+
+                  {/* Has Family Section */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-slate-400">পরিবারের সদস্য থাকবে?</label>
+                    <select
+                      value={editForm.hasFamily}
+                      onChange={(e) => {
+                        const val = e.target.value as 'yes' | 'no';
+                        setEditForm(prev => prev ? { 
+                          ...prev, 
+                          hasFamily: val, 
+                          familyCount: val === 'no' ? 0 : (prev.familyCount || 1) 
+                        } : null);
+                      }}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950/50 border border-white/10 text-white text-sm focus:outline-none focus:ring-1 focus:ring-amber-500 text-slate-200"
+                    >
+                      <option value="no" className="bg-slate-900">না (No)</option>
+                      <option value="yes" className="bg-slate-900">হ্যাঁ (Yes)</option>
+                    </select>
+                  </div>
+
+                  {/* Family Count (Only if yes) */}
+                  {editForm.hasFamily === 'yes' && (
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-slate-400">পরিবারের সদস্য সংখ্যা</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={editForm.familyCount || 1}
+                        onChange={(e) => setEditForm(prev => prev ? { ...prev, familyCount: parseInt(e.target.value) || 1 } : null)}
+                        className="w-full px-4 py-2.5 rounded-xl bg-slate-950/50 border border-white/10 text-white font-sans text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
+                        required
+                      />
+                    </div>
+                  )}
+
+                  {/* Emergency Contact */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-slate-400">জরুরি যোগাযোগের নম্বর</label>
+                    <input
+                      type="text"
+                      value={editForm.emergencyPhone}
+                      onChange={(e) => setEditForm(prev => prev ? { ...prev, emergencyPhone: e.target.value } : null)}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950/50 border border-white/10 text-white font-sans text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Comments/Notes */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-400">বিশেষ মন্তব্য/নোট</label>
+                  <textarea
+                    value={editForm.notes || ''}
+                    onChange={(e) => setEditForm(prev => prev ? { ...prev, notes: e.target.value } : null)}
+                    rows={2}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950/50 border border-white/10 text-white text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  />
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-4">
+                  <div className="text-xs font-bold text-[#2DD4BF] uppercase tracking-wider font-mono">
+                    Payment Management
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Paid Already */}
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-slate-400">অগ্রিম পেমেন্ট করেছেন?</label>
+                      <select
+                        value={editForm.paidAlready || 'no'}
+                        onChange={(e) => {
+                          const val = e.target.value as 'yes' | 'no';
+                          setEditForm(prev => prev ? {
+                            ...prev,
+                            paidAlready: val,
+                            paymentMethod: val === 'no' ? '' : (prev.paymentMethod || 'bKash'),
+                            paidAmount: val === 'no' ? '' : (prev.paidAmount || '250'),
+                            adminPaymentStatus: val === 'yes' ? 'Paid' : 'Unpaid'
+                          } : null);
+                        }}
+                        className="w-full px-4 py-2.5 rounded-xl bg-slate-950/50 border border-white/10 text-white text-sm focus:outline-none focus:ring-1 focus:ring-amber-500 text-slate-200"
+                      >
+                        <option value="no" className="bg-slate-900">না</option>
+                        <option value="yes" className="bg-slate-900">হ্যাঁ</option>
+                      </select>
+                    </div>
+
+                    {/* Payment Status Dropdown (🟢 Paid, 🟡 Pending, 🔴 Unpaid) */}
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-slate-400">পেমেন্ট স্ট্যাটাস</label>
+                      <select
+                        value={editForm.adminPaymentStatus || 'Unpaid'}
+                        onChange={(e) => setEditForm(prev => prev ? { ...prev, adminPaymentStatus: e.target.value as 'Paid' | 'Pending' | 'Unpaid' } : null)}
+                        className="w-full px-4 py-2.5 rounded-xl bg-slate-950/50 border border-white/10 text-white text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      >
+                        <option value="Paid" className="bg-slate-900 text-emerald-400">🟢 Paid</option>
+                        <option value="Pending" className="bg-slate-900 text-amber-300">🟡 Pending</option>
+                        <option value="Unpaid" className="bg-slate-900 text-rose-300">🔴 Unpaid</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {editForm.paidAlready === 'yes' && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                      {/* payment method */}
+                      <div className="space-y-1.5">
+                        <label className="block text-[11px] font-semibold text-slate-400">পেমেন্ট মাধ্যম</label>
+                        <select
+                          value={editForm.paymentMethod || 'bKash'}
+                          onChange={(e) => setEditForm(prev => prev ? { ...prev, paymentMethod: e.target.value as any } : null)}
+                          className="w-full px-3 py-2 rounded-xl bg-slate-950/50 border border-white/10 text-white text-xs focus:outline-none focus:ring-1 focus:ring-amber-500 text-slate-200"
+                        >
+                          <option value="bKash" className="bg-slate-900">bKash</option>
+                          <option value="Nagad" className="bg-slate-900">Nagad</option>
+                          <option value="Upay" className="bg-slate-900">Upay</option>
+                          <option value="Rocket" className="bg-slate-900">Rocket</option>
+                        </select>
+                      </div>
+
+                      {/* paid amount */}
+                      <div className="space-y-1.5">
+                        <label className="block text-[11px] font-semibold text-slate-400">প্রদত্ত পরিমাণ (৳)</label>
+                        <input
+                          type="text"
+                          value={editForm.paidAmount || ''}
+                          onChange={(e) => setEditForm(prev => prev ? { ...prev, paidAmount: e.target.value } : null)}
+                          className="w-full px-3 py-2 rounded-xl bg-slate-950/50 border border-white/10 text-white font-sans text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
+                          placeholder="টাকার অংক"
+                        />
+                      </div>
+
+                      {/* Transaction ID */}
+                      <div className="space-y-1.5">
+                        <label className="block text-[11px] font-semibold text-slate-400 font-sans">Transaction ID</label>
+                        <input
+                          type="text"
+                          value={editForm.transactionId || ''}
+                          onChange={(e) => setEditForm(prev => prev ? { ...prev, transactionId: e.target.value } : null)}
+                          className="w-full px-3 py-2 rounded-xl bg-slate-950/50 border border-white/10 text-white text-xs focus:outline-none focus:ring-1 focus:ring-amber-500 font-sans"
+                          placeholder="বিকাশ আইডি"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
+                  <button
+                    type="button"
+                    onClick={() => setEditingRegistration(null)}
+                    className="px-5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-medium text-xs transition duration-150 cursor-pointer"
+                  >
+                    বাতিল
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2 rounded-xl bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 hover:to-teal-400 text-slate-950 font-bold text-xs shadow-lg shadow-teal-500/10 active:scale-95 transition cursor-pointer"
+                  >
+                    সেভ করুন
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Custom Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deleteTarget && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="relative w-full max-w-sm bg-[#0F1E36] border border-white/10 rounded-3xl p-6 text-center shadow-2xl"
+            >
+              <div className="w-14 h-14 rounded-full bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-bold text-white mb-2 font-sans">রেজিস্ট্রেশন মুছে ফেলার নিশ্চয়তা</h3>
+              <p className="text-slate-300 text-xs font-sans px-2 mb-6 leading-relaxed">
+                আপনি কি নিশ্চিতভাবে <span className="text-rose-400 font-bold">"{deleteTarget.name}"</span> এর রেজিস্ট্রেশনটি মুছে ফেলতে চান? এটি আর ফিরিয়ে আনা সম্ভব নয়!
+              </p>
+              <div className="flex justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDeleteTarget(null)}
+                  className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-xs transition duration-150 cursor-pointer"
+                >
+                  বাতিল করুন
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onDeleteRegistration(deleteTarget.id);
+                    setDeleteTarget(null);
+                  }}
+                  className="px-5 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs shadow-lg shadow-rose-500/20 active:scale-95 transition cursor-pointer"
+                >
+                  হ্যাঁ, মুছে ফেলুন
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Custom Clear All Confirmation Modal */}
+      <AnimatePresence>
+        {showClearAllConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="relative w-full max-w-sm bg-[#0F1E36] border border-white/10 rounded-3xl p-6 text-center shadow-2xl"
+            >
+              <div className="w-14 h-14 rounded-full bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-6 h-6 animate-pulse" />
+              </div>
+              <h3 className="text-base font-bold text-white mb-2 font-sans">সকল স্থানীয় ডেটা মুছে ফেলার নিশ্চয়তা</h3>
+              <p className="text-slate-300 text-xs font-sans px-2 mb-6 leading-relaxed">
+                আপনি কি নিশ্চিত যে আপনি স্থানীয় সঞ্চয়স্থানের সমস্ত রেজিস্ট্রেশন মুছে ফেলতে চান? গুগল শিট সিঙ্কের ডেটা এতে প্রভাবিত হবে না।
+              </p>
+              <div className="flex justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowClearAllConfirm(false)}
+                  className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-xs transition duration-150 cursor-pointer"
+                >
+                  বাতিল করুন
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClearAll();
+                    setShowClearAllConfirm(false);
+                  }}
+                  className="px-5 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs shadow-lg shadow-rose-500/20 active:scale-95 transition cursor-pointer"
+                >
+                  হ্যাঁ, সব মুছুন
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

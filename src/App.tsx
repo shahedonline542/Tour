@@ -91,6 +91,14 @@ export default function App() {
     });
   };
 
+  const handleDeleteRegistration = (id: string) => {
+    setRegistrations((prev) => {
+      const newList = prev.filter((r) => r.id !== id);
+      localStorage.setItem('marketing_tour_registrations', JSON.stringify(newList));
+      return newList;
+    });
+  };
+
   const handleRefreshData = () => {
     const savedRegs = localStorage.getItem('marketing_tour_registrations');
     if (savedRegs) {
@@ -242,6 +250,7 @@ export default function App() {
                 appsScriptUrl={appsScriptUrl}
                 onUpdateUrl={handleUpdateAppsScriptUrl}
                 onUpdateRegistration={handleUpdateRegistration}
+                onDeleteRegistration={handleDeleteRegistration}
               />
             </motion.div>
           )}
