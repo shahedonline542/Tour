@@ -50,7 +50,7 @@ export default function App() {
           hasFamily: 'no',
           familyCount: 0,
           emergencyPhone: '01888777666',
-          notes: 'আমাদের মার্কেটিং বিভাগের (২য় বর্ষ) সকলের স্বতঃস্ফূর্ত অংশগ্রহণ কামনা করছি!',
+          notes: 'আমাদের মার্কেটিং বিভাগের সকলের স্বতঃস্ফূর্ত অংশগ্রহণ কামনা করছি!',
           agreement: true
         }
       ];
@@ -138,7 +138,7 @@ export default function App() {
             </div>
             <div>
               <span className="font-extrabold text-sm md:text-base block font-sans tracking-tight text-white">
-                মার্কেটিং ২য় বর্ষ ট্যুর ২০২৬
+                মার্কেটিং ট্যুর ২০২৬
               </span>
               <span className="text-[10px] md:text-xs text-[#2DD4BF] block font-medium tracking-wide">
                 আযমখান সরকারি কমার্স কলেজ
@@ -264,7 +264,7 @@ export default function App() {
           <div>
             <div className="flex items-center gap-2 justify-center md:justify-start mb-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
-              <p className="font-bold text-white tracking-wide font-sans">মার্কেটিং বিভাগ (২য় বর্ষ), আযমখান কমার্স কলেজ</p>
+              <p className="font-bold text-white tracking-wide font-sans">মার্কেটিং বিভাগ, আযমখান কমার্স কলেজ</p>
             </div>
             <p className="text-xs text-slate-400 font-medium tracking-tight mb-2.5">Built for Marketing Dept • Azam Khan Gov Commerce College</p>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-[#2DD4BF] text-xs font-bold shadow-md shadow-teal-500/5">
