@@ -39,7 +39,7 @@ export default function HeroSection({ onRegisterClick }: HeroSectionProps) {
         transition={{ duration: 0.6, delay: 0.2 }}
         className="text-lg md:text-xl text-slate-300 font-medium mb-10 max-w-xl"
       >
-        মার্কেটিং বিভাগ
+        মার্কেটিং বিভাগ (২য় বর্ষ)
         <br />
         <span className="text-[#2DD4BF] font-semibold text-xl md:text-2xl">আযমখান সরকারি কমার্স কলেজ</span>
       </motion.p>
