@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="bn" class="bg-slate-950 text-white select-none">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>মার্কেটিং ট্যুর ২০২৬ কন্ট্রোল সেন্টার - অ্যাডমিন কন্ট্রোল প্যানেল</title>
+  <!-- Tailwind CSS CDN v3 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Custom CSS fallback -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-950 text-white min-h-screen font-sans antialiased overflow-x-hidden selection:bg-amber-500/30">
+
+  <div class="min-h-screen py-12 px-4 flex items-center justify-center">
+
+    <!-- 1. Password Protection Modal Screen -->
+    <div id="login-modal" class="max-w-md w-full p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md shadow-2xl relative">
+      <div class="w-16 h-16 bg-amber-500/10 border border-amber-500/25 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+        <!-- Padlock Icon SVG -->
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+      </div>
+
+      <div class="text-center mb-8">
+        <h2 class="text-2xl font-bold">প্যানেল এক্সেস সিকিউরিটি</h2>
+        <p class="text-slate-400 text-sm mt-1">অর্গানাইজার তথ্যবোর্ডে প্রবেশের জন্য পাসওয়ার্ড প্রদান করুন।</p>
+      </div>
+
+      <form onsubmit="handleAdminLogin(event)" class="space-y-6">
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-slate-300 block">সিকিউরিটি পাসওয়ার্ড</label>
+          <input type="password" id="admin-pass" placeholder="ডিফল্ট পাসওয়ার্ড লিখুন..." class="w-full px-4 py-3.5 rounded-xl bg-slate-950/50 border border-white/10 focus:outline-none focus:ring-1 focus:ring-amber-400 text-white font-sans text-sm md:text-base">
+          <p id="login-error" class="hidden text-rose-400 text-xs mt-1">ভুল সিকিউরিটি পাসওয়ার্ড! পুনরায় চেষ্টা করুন।</p>
+        </div>
+
+        <button type="submit" class="w-full py-4 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-bold text-center block transition transform active:scale-95 cursor-pointer">ভেরিফাই এবং প্রবেশ করুন</button>
+      </form>
+    </div>
+
+    <!-- 2. Admin Controlling Panel Screen (Hidden until login success) -->
+    <div id="admin-panel" class="hidden max-w-6xl w-full space-y-8">
+
+      <!-- Header Row -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-md">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="flex h-2.5 w-2.5 rounded-full bg-teal-400 animate-pulse"></span>
+            <span class="text-xs text-teal-400 font-bold tracking-wider uppercase font-mono">Operations Active</span>
+          </div>
+          <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight mt-1">মার্কেটিং ট্যুর <span class="text-amber-400">২০২৬ কন্ট্রোল সেন্টার</span></h1>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <button onclick="toggleConfigPanel()" id="btn-toggle-config" class="px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 text-sm font-semibold hover:bg-white/10 transition">গুগল শিট কানেক্ট</button>
+          <button onclick="handleAdminLogout()" class="px-4 py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 hover:bg-rose-500/15 text-sm font-semibold transition">লগ আউট</button>
+        </div>
+      </div>
+
+      <!-- Config Section for GAS (Hidden by default) -->
+      <div id="config-panel" class="hidden p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md space-y-4">
+        <h2 class="text-xl font-bold text-teal-400 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          গুগল অ্যাপস স্ক্রিপ্ট কানেক্টর সেটআপ
+        </h2>
+        <p class="text-sm text-slate-300">স্প্রেডশিটের ওয়েব অ্যাপ ইউআরএলটি নিচের ইনপুটে দিন এবং সেভ করুন। এরপর থেকে সকল রেজিস্ট্রন এই গুগল শিটে ডেটা পাঠাবে।</p>
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input type="url" id="config-sheet-url" placeholder="https://script.google.com/macros/s/.../exec" class="flex-1 px-4 py-3 rounded-xl bg-slate-950/50 border border-white/10 text-sm text-white font-mono">
+          <button onclick="saveAppsScriptUrl()" class="px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-sm">সেভ লিঙ্ক</button>
+        </div>
+        <p id="config-save-success" class="hidden text-teal-400 text-sm font-semibold">লিঙ্কটি সেভ সফলভাবে সম্পন্ন হয়েছে!</p>
+      </div>
+
+      <!-- Stats Board grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
+          <p class="text-slate-400 text-xs">মোট রেজিস্ট্রন ফরম</p>
+          <h3 id="stat-total" class="text-3xl font-bold mt-1">০ জন</h3>
+        </div>
+        <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
+          <p class="text-slate-400 text-xs">নিশ্চিত অংশগ্রহণকারী (হ্যাঁ)</p>
+          <h3 id="stat-confirmed" class="text-3xl font-bold mt-1 text-teal-400">০ জন</h3>
+        </div>
+        <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
+          <p class="text-slate-400 text-xs">পরিবারের সদস্য সংখ্যা</p>
+          <h3 id="stat-families" class="text-3xl font-bold mt-1 text-amber-300">০ জন</h3>
+        </div>
+        <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
+          <p class="text-slate-400 text-xs">মোট আসন বরাদ্দ (সদস্যসহ)</p>
+          <h3 id="stat-heads" class="text-3xl font-bold mt-1 text-cyan-400">০ জন</h3>
+        </div>
+      </div>
+
+      <!-- Controls & Records Table Layout -->
+      <div class="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md space-y-6">
+        <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
+          <!-- Live Search -->
+          <div class="relative flex-1">
+            <input type="text" id="admin-search" oninput="renderRegistrations()" placeholder="নাম অথবা মোবাইল নম্বর দিয়ে সার্চ করুন..." class="w-full pl-4 pr-4 py-2.5 rounded-xl bg-slate-950/40 border border-white/10 text-sm focus:outline-none">
+          </div>
+          <!-- Action controls -->
+          <div class="flex flex-wrap items-center gap-3">
+            <select id="admin-filter" onchange="renderRegistrations()" class="px-3 py-2.5 rounded-xl bg-slate-950/40 border border-white/10 text-sm text-slate-200 focus:outline-none">
+              <option value="all">অংশগ্রহণ: সকল</option>
+              <option value="yes">হ্যাঁ</option>
+              <option value="no">না</option>
+              <option value="maybe">নিশ্চিত নই</option>
+            </select>
+            <button onclick="refreshRegistrations()" class="p-2.5 rounded-xl bg-white/5 border border-white/5 text-slate-300 hover:text-white" title="রिफ্রেশ">
+              <!-- Refresh SVG Icon -->
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17"></path></svg>
+            </button>
+            <button onclick="exportCSVData()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm flex items-center gap-2">
+              <span>CSV ডাউনলোড</span>
+            </button>
+            <button onclick="wipeLocalStorageData()" class="px-4 py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 hover:bg-rose-500/25 font-bold text-xs">মুছুন</button>
+          </div>
+        </div>
+
+        <!-- Scrollable Table -->
+        <div class="overflow-x-auto rounded-xl border border-white/5">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-950/60 border-b border-white/10 text-slate-400 text-xs md:text-sm">
+                <th class="p-4 font-sans font-medium">সময় ও তারিখ</th>
+                <th class="p-4 font-sans font-medium">পূর্ণ নাম</th>
+                <th class="p-4 font-sans font-medium">মোবাইল নম্বর</th>
+                <th class="p-4 font-sans font-medium">অংশগ্রহণ করবেন?</th>
+                <th class="p-4 font-sans font-medium">পরিবারের সদস্য</th>
+                <th class="p-4 font-sans font-medium">জরুরি নম্বর</th>
+                <th class="p-4 font-sans font-medium">মন্তব্য</th>
+              </tr>
+            </thead>
+            <tbody id="registrations-body" class="divide-y divide-white/5 text-xs md:text-sm text-slate-200">
+              <!-- Injected dynamically via admin.js -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="text-sm text-slate-400 flex justify-between items-center flex-wrap gap-2">
+          <p id="table-record-count">রেকর্ড সংখ্যা: ০</p>
+          <p class="hidden sm:block text-xs text-slate-500">* ডেটা নিরাপদে স্থানীয়ভাবে ব্রাউজারে সংরক্ষিত আছে।</p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

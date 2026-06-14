@@ -1,0 +1,6 @@
+{
+  "name": "Bengali Event Registration",
+  "description": "A premium, responsive event registration platform for Marketing Department tours with live Google Sheets integration and a password-protected administrative controller.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

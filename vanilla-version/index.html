@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="bn" class="scroll-smooth bg-slate-950 text-white select-none">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ইনফরমাল ডিপার্টমেন্ট ট্যুর ২০২৬ - মার্কেটিং বিভাগ, আযমখান কমার্স কলেজ</title>
+  <!-- Tailwind CSS CDN v3 for robust styling in standard browser environment -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Custom Style Sheet -->
+  <link rel="stylesheet" href="style.css">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-950 text-white min-h-screen font-sans antialiased overflow-x-hidden selection:bg-amber-500/30">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/5 px-6 py-4">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <div class="flex items-center gap-2.5 cursor-pointer" onclick="window.location.href='#home'">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-400 to-amber-500 flex items-center justify-center text-slate-950 font-bold text-lg shadow-lg">
+          MK
+        </div>
+        <div>
+          <span class="font-extrabold text-sm md:text-base block tracking-tight text-white">মার্কেটিং ট্যুর ২০২৬</span>
+          <span class="text-[10px] md:text-xs text-slate-400 block">আযমখান সরকারি কমার্স কলেজ</span>
+        </div>
+      </div>
+      <nav class="flex items-center gap-4">
+        <a href="#event-details" class="hidden md:inline-block text-sm font-semibold text-slate-300 hover:text-white transition">বিস্তারিত</a>
+        <a href="#timeline-section" class="hidden md:inline-block text-sm font-semibold text-slate-300 hover:text-white transition">সময়সূচী</a>
+        <a href="#faq-section" class="hidden md:inline-block text-sm font-semibold text-slate-300 hover:text-white transition">জিজ্ঞাসা</a>
+        <a href="#registration-section" class="px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-bold text-sm shadow-md transition transform active:scale-95">সিট বুকিং</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="home" class="relative overflow-hidden py-24 md:py-32 flex flex-col items-center justify-center text-center px-4 bg-gradient-to-b from-[#091a36] via-[#0f2446] to-[#040c1a]">
+    <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-300 text-sm font-medium mb-6 backdrop-blur-md">
+      <span class="flex h-2 w-2 rounded-full bg-teal-400 animate-pulse"></span>
+      ট্যুর রেজিস্ট্রেশন চলছে
+    </div>
+
+    <h1 class="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-tight max-w-3xl mb-4">
+      ইনফরমাল ডিপার্টমেন্ট <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-500">ট্যুর ২০২৬</span>
+    </h1>
+
+    <p class="text-slate-300 font-medium mb-10 max-w-xl text-lg md:text-xl">
+      মার্কেটিং বিভাগ<br>
+      <span class="text-teal-300 font-semibold text-xl md:text-2xl">আযমখান সরকারি কমার্স কলেজ</span>
+    </p>
+
+    <!-- Badges Row -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl w-full mb-12">
+      <div class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md text-left">
+        <div class="p-3 rounded-xl bg-amber-500/20 text-amber-400">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        </div>
+        <div>
+          <p class="text-slate-400 text-xs">ভ্রমণের তারিখ</p>
+          <p class="text-white font-semibold text-base">২০ জুন, শনিবার</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md text-left">
+        <div class="p-3 rounded-xl bg-teal-500/20 text-teal-400">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        </div>
+        <div>
+          <p class="text-slate-400 text-xs">ভ্রমণ স্থান</p>
+          <p class="text-white font-semibold text-base">আকিজ সিটি, নওয়াপাড়া</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA Buttons -->
+    <div class="flex flex-col sm:flex-row gap-4 items-center justify-center w-full">
+      <a href="#registration-section" class="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-bold text-lg hover:from-amber-300 hover:to-amber-400 shadow-lg transition transform active:scale-95 text-center">রেজিস্ট্রেশন করুন</a>
+      <a href="#event-details" class="w-full sm:w-auto px-8 py-4 rounded-full bg-white/10 text-white font-semibold text-lg hover:bg-white/15 border border-white/10 flex items-center justify-center gap-2 transition transform active:scale-95">বিস্তারিত দেখুন</a>
+    </div>
+  </section>
+
+  <!-- Stats ribbon -->
+  <section class="bg-slate-900 border-y border-white/5 py-8 px-4 text-center">
+    <div class="max-w-5xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-6">
+      <div>
+        <h4 class="text-2xl md:text-3xl font-extrabold text-amber-400">২০ জুন</h4>
+        <p class="text-xs text-slate-400 mt-1">ভ্রমণ ও আড্ডা</p>
+      </div>
+      <div>
+        <h4 class="text-2xl md:text-3xl font-extrabold text-teal-400">আকিজ সিটি</h4>
+        <p class="text-xs text-slate-400 mt-1">অনিন্দ্য বিনোদন স্পট</p>
+      </div>
+      <div>
+        <h4 class="text-2xl md:text-3xl font-extrabold text-cyan-400">১১:০০ AM</h4>
+        <p class="text-xs text-slate-400 mt-1">বিদায় খুলনা রেলস্টেশন</p>
+      </div>
+      <div>
+        <h4 class="text-2xl md:text-3xl font-extrabold text-pink-400">২৫০-৩০০ BDT</h4>
+        <p class="text-xs text-slate-400 mt-1">সম্ভাব্য জনপ্রতি বাজেট</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Details -->
+  <section id="event-details" class="py-20 px-4 bg-slate-950 text-white relative">
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-teal-500/5 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">ট্যুর সংক্রান্ত <span class="text-teal-400">গুরুত্বপূর্ণ তথ্য</span></h2>
+        <p class="text-slate-400 max-w-xl mx-auto text-sm md:text-base">আমাদের মার্কেটিং বিভাগের ঘরোয়া ভ্রমণের সমস্ত বিবরণ নিচে গুছিয়ে দেওয়া হলো।</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Card 1 -->
+        <div class="p-6 rounded-2xl bg-white/5 border border-amber-500/10 backdrop-blur-md relative overflow-hidden group">
+          <h3 class="font-bold text-amber-400 text-lg mb-2">তারিখ ও দিন</h3>
+          <p class="text-white text-xl font-bold">২০ জুন, শনিবার</p>
+          <p class="text-slate-400 text-sm mt-1">২০২৬ শিক্ষাবর্ষ</p>
+        </div>
+        <!-- Card 2 -->
+        <div class="p-6 rounded-2xl bg-white/5 border border-teal-500/10 backdrop-blur-md relative overflow-hidden group">
+          <h3 class="font-bold text-teal-400 text-lg mb-2">যাত্রার সময় ও স্থান</h3>
+          <p class="text-white text-xl font-bold">সকাল ১১:০০ টা</p>
+          <p class="text-slate-400 text-sm mt-1">খুলনা রেলওয়ে স্টেশন থেকে যাত্রা</p>
+        </div>
+        <!-- Card 3 -->
+        <div class="p-6 rounded-2xl bg-white/5 border border-amber-500/10 backdrop-blur-md relative overflow-hidden group">
+          <h3 class="font-bold text-amber-400 text-lg mb-2">গন্তব্যস্থল</h3>
+          <p class="text-white text-xl font-bold">আকিজ সিটি, নওয়াপাড়া</p>
+          <p class="text-slate-400 text-sm mt-1">অভয়নগর, যশোর</p>
+        </div>
+        <!-- Card 4 -->
+        <div class="p-6 rounded-2xl bg-white/5 border border-teal-500/10 backdrop-blur-md relative overflow-hidden group">
+          <h3 class="font-bold text-teal-400 text-lg mb-2">খাবারের ব্যবস্থা</h3>
+          <p class="text-white text-xl font-bold">মধ্যাহ্নভোজ ও নাস্তা</p>
+          <p class="text-slate-400 text-sm mt-1">দুপুরের চমৎকার খাবারের সুব্যবস্থা</p>
+        </div>
+        <!-- Card 5 -->
+        <div class="p-6 rounded-2xl bg-white/5 border border-amber-500/10 backdrop-blur-md relative overflow-hidden group">
+          <h3 class="font-bold text-amber-400 text-lg mb-2">প্রত্যাবর্তন</h3>
+          <p class="text-white text-xl font-bold">সন্ধ্যায় প্রত্যাবর্তন</p>
+          <p class="text-slate-400 text-sm mt-1">একই দিনে নিরাপদে ফিরে আসা</p>
+        </div>
+        <!-- Card 6 -->
+        <div class="p-6 rounded-2xl bg-white/5 border border-teal-500/10 backdrop-blur-md relative overflow-hidden group">
+          <h3 class="font-bold text-teal-400 text-lg mb-2">সম্ভাব্য খরচ</h3>
+          <p class="text-white text-xl font-bold">২৫০ - ৩০০ টাকা মাত্র</p>
+          <p class="text-slate-400 text-sm mt-1">জনপ্রতি নামমাত্র চাঁদা</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Timeline -->
+  <section id="timeline-section" class="py-20 px-4 bg-slate-900 text-white relative">
+    <div class="absolute top-0 right-0 w-80 h-80 bg-amber-500/5 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">ট্যুর <span class="text-amber-400">শিডিউল টাইমলাইন</span></h2>
+        <p class="text-slate-400 max-w-xl mx-auto text-sm md:text-base">সারাদিনের ভ্রমণ পরিকল্পনাটি নিচে গুছিয়ে দেওয়া হলো।</p>
+      </div>
+      <div class="relative border-l-2 border-slate-700 ml-4 md:ml-32">
+        <!-- Item 1 -->
+        <div class="mb-12 pl-8 relative">
+          <div class="hidden md:block absolute right-full mr-12 top-1 text-right w-40">
+            <span class="text-amber-400 font-bold block text-base font-mono">১১:০০ AM</span>
+            <span class="text-xs text-slate-500 px-2 py-0.5 rounded bg-white/5 inline-block">যাত্রারম্ভ</span>
+          </div>
+          <div class="absolute -left-[14px] top-1.5 w-6 h-6 rounded-full bg-slate-950 border-2 border-amber-400 flex items-center justify-center">
+            <span class="h-2 w-2 rounded-full bg-amber-400"></span>
+          </div>
+          <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
+            <h3 class="text-lg md:text-xl font-bold text-white mb-2">যাত্রারম্ভ ও ট্রেন জার্নি</h3>
+            <p class="text-slate-300 text-sm md:text-base">খুলনা স্টেশন থেকে শুরু হবে ট্রেন জার্নি, গান, আড্ডা ও খুশিতে কাটবে সময়।</p>
+          </div>
+        </div>
+        <!-- Item 2 -->
+        <div class="mb-12 pl-8 relative">
+          <div class="hidden md:block absolute right-full mr-12 top-1 text-right w-40">
+            <span class="text-teal-400 font-bold block text-base font-mono">১২:০০ PM</span>
+            <span class="text-xs text-slate-500 px-2 py-0.5 rounded bg-white/5 inline-block">পৌঁছানো</span>
+          </div>
+          <div class="absolute -left-[14px] top-1.5 w-6 h-6 rounded-full bg-slate-950 border-2 border-teal-400 flex items-center justify-center">
+            <span class="h-2 w-2 rounded-full bg-teal-400"></span>
+          </div>
+          <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
+            <h3 class="text-lg md:text-xl font-bold text-white mb-2">নওয়াপাড়া পৌঁছানো</h3>
+            <p class="text-slate-300 text-sm md:text-base">নওয়াপাড়া স্টেশন থেকে গাড়ি করে আকিজ সিটিতে যাত্রা শুরু করবো।</p>
+          </div>
+        </div>
+        <!-- Item 3 -->
+        <div class="mb-12 pl-8 relative">
+          <div class="hidden md:block absolute right-full mr-12 top-1 text-right w-40">
+            <span class="text-amber-400 font-bold block text-base font-mono">১:৩০ PM</span>
+            <span class="text-xs text-slate-500 px-2 py-0.5 rounded bg-white/5 inline-block">খাবার ও নামায</span>
+          </div>
+          <div class="absolute -left-[14px] top-1.5 w-6 h-6 rounded-full bg-slate-950 border-2 border-amber-400 flex items-center justify-center">
+            <span class="h-2 w-2 rounded-full bg-amber-400"></span>
+          </div>
+          <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
+            <h3 class="text-lg md:text-xl font-bold text-white mb-2">মধ্যাহ্নভোজ ও নামায বিরতি</h3>
+            <p class="text-slate-300 text-sm md:text-base">যোহরের নামাজের পর আকিজ সিটি রেস্টুরেন্টে দুপুরের চমৎকার খাবার গ্রহণ।</p>
+          </div>
+        </div>
+        <!-- Item 4 -->
+        <div class="pl-8 relative">
+          <div class="hidden md:block absolute right-full mr-12 top-1 text-right w-40">
+            <span class="text-teal-400 font-bold block text-base font-mono">২:৩০ PM</span>
+            <span class="text-xs text-slate-500 px-2 py-0.5 rounded bg-white/5 inline-block">ভ্রমণ ও ছবি</span>
+          </div>
+          <div class="absolute -left-[14px] top-1.5 w-6 h-6 rounded-full bg-slate-950 border-2 border-teal-400 flex items-center justify-center">
+            <span class="h-2 w-2 rounded-full bg-teal-400"></span>
+          </div>
+          <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
+            <h3 class="text-lg md:text-xl font-bold text-white mb-2">আকিজ সিটি পার্ক পরিভ্রমণ</h3>
+            <p class="text-slate-300 text-sm md:text-base">পার্কের দর্শনীয় দৃশ্যগুলো ঘুরে দেখা, গ্রুপ ফটো এবং আনন্দের মুহূর্ত উপভোগ করা।</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Form Section -->
+  <section id="registration-section" class="py-24 px-4 bg-gradient-to-b from-[#040c1a] to-[#091a36] text-white">
+    <div class="max-w-xl mx-auto">
+      <div class="text-center mb-12">
+        <span class="inline-block px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-3">রেজিস্ট্রেশন ফরম</span>
+        <h2 class="text-3xl md:text-4xl font-bold mb-3">আপনার <span class="text-amber-400">আসনটি নিশ্চিত</span> করুন</h2>
+        <p class="text-slate-300 text-sm md:text-base">তথ্যগুলো সঠিকভাবে পূরণ করুন। লাল তারকা (*) অবশ্যই পূরণীয়।</p>
+      </div>
+
+      <div class="p-8 pb-10 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md shadow-2xl relative">
+        <!-- Success Screen -->
+        <div id="success-screen" class="hidden text-center py-10">
+          <div class="w-20 h-20 bg-teal-500/10 border border-teal-500/30 text-teal-400 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </div>
+          <h3 class="text-2xl font-bold text-white mb-4">অভিনন্দন!</h3>
+          <p id="success-message" class="text-slate-200 text-base leading-relaxed mb-8">
+            ধন্যবাদ। আপনার রেজিস্ট্রেশন সফলভাবে গ্রহণ করা হয়েছে। ট্যুর সংক্রান্ত পরবর্তী তথ্য WhatsApp অথবা সরাসরি যোগাযোগের মাধ্যমে জানানো হবে।
+          </p>
+          <button onclick="resetForm()" class="px-6 py-3 rounded-full bg-white/10 hover:bg-white/15 text-white text-sm font-semibold border-white/5">আরেকটি আবেদন করুন</button>
+        </div>
+
+        <!-- Form Box -->
+        <form id="registration-form" onsubmit="handleFormSubmit(event)" class="space-y-6">
+          <!-- Name -->
+          <div class="space-y-2">
+            <label class="block text-sm font-semibold text-slate-200">১. পূর্ণ নাম <span class="text-rose-400 font-bold">*</span></label>
+            <input type="text" id="name" placeholder="আপনার পূর্ণ নাম টাইপ করুন..." class="w-full px-4 py-3.5 rounded-xl bg-slate-950/40 border border-white/10 text-white focus:outline-none focus:ring-1 focus:ring-amber-400">
+            <p id="error-name" class="hidden text-rose-400 text-xs mt-1">দয়া করে আপনার পূর্ণ নাম লিখুন</p>
+          </div>
+
+          <!-- Phone -->
+          <div class="space-y-2">
+            <label class="block text-sm font-semibold text-slate-200">২. মোবাইল নম্বর <span class="text-rose-400 font-bold">*</span></label>
+            <input type="tel" id="phone" placeholder="যেমন: 019xxxxxxxx" class="w-full px-4 py-3.5 rounded-xl bg-slate-950/40 border border-white/10 text-white focus:outline-none focus:ring-1 focus:ring-amber-400">
+            <p id="error-phone" class="hidden text-rose-400 text-xs mt-1">স্বাভাবিক ১১ ডিজিটের মোবাইল নম্বর দিন</p>
+          </div>
+
+          <!-- Participation -->
+          <div class="space-y-2.5">
+            <label class="block text-sm font-semibold text-slate-200">৩. আপনি কি ট্যুরে অংশগ্রহণ করবেন? <span class="text-rose-400 font-bold">*</span></label>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <label class="p-3.5 rounded-xl border border-white/10 bg-slate-950/30 text-center font-medium cursor-pointer flex items-center justify-center gap-2">
+                <input type="radio" name="participation" value="yes" checked class="accent-amber-400"> <span>হ্যাঁ</span>
+              </label>
+              <label class="p-3.5 rounded-xl border border-white/10 bg-slate-950/30 text-center font-medium cursor-pointer flex items-center justify-center gap-2">
+                <input type="radio" name="participation" value="no" class="accent-amber-400"> <span>না</span>
+              </label>
+              <label class="p-3.5 rounded-xl border border-white/10 bg-slate-950/30 text-center font-medium cursor-pointer flex items-center justify-center gap-2">
+                <input type="radio" name="participation" value="maybe" class="accent-amber-400"> <span>এখনও নিশ্চিত নই</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Family Member Trigger -->
+          <div class="space-y-2.5">
+            <label class="block text-sm font-semibold text-slate-200">৪. আপনার সাথে কি পরিবারের সদস্য থাকবেন?</label>
+            <div class="grid grid-cols-2 gap-3">
+              <label class="p-3.5 rounded-xl border border-white/10 bg-slate-950/30 text-center font-medium cursor-pointer flex items-center justify-center gap-2">
+                <input type="radio" name="hasFamily" value="yes" onchange="toggleFamilyCount(true)" class="accent-teal-400"> <span>হ্যাঁ</span>
+              </label>
+              <label class="p-3.5 rounded-xl border border-teal-500/20 bg-teal-500/10 text-center font-medium cursor-pointer flex items-center justify-center gap-2 text-teal-300">
+                <input type="radio" name="hasFamily" value="no" checked onchange="toggleFamilyCount(false)" class="accent-teal-400"> <span>না</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Conditional Family Member Count -->
+          <div id="familyCountBox" class="hidden space-y-2">
+            <label class="block text-sm font-semibold text-teal-300">৫. পরিবারের সদস্য সংখ্যা <span class="text-rose-400 font-bold">*</span></label>
+            <input type="number" id="familyCount" min="1" placeholder="পরিবারের সদস্য সংখ্যা..." class="w-full px-4 py-3.5 rounded-xl bg-slate-950/40 border border-teal-500/20 text-white focus:outline-none focus:ring-1 focus:ring-teal-400">
+            <p id="error-familyCount" class="hidden text-rose-400 text-xs mt-1">দয়া করে সংখ্যা দিন (ন্যূনতম ১)</p>
+          </div>
+
+          <!-- Emergency Contact -->
+          <div class="space-y-2">
+            <label class="block text-sm font-semibold text-slate-200">৬. জরুরি যোগাযোগ নম্বর <span class="text-rose-400 font-bold">*</span></label>
+            <input type="tel" id="emergencyPhone" placeholder="যেমন: 018xxxxxxxx (পরিবার)" class="w-full px-4 py-3.5 rounded-xl bg-slate-950/40 border border-white/10 text-white focus:outline-none focus:ring-1 focus:ring-amber-400">
+            <p id="error-emergencyPhone" class="hidden text-rose-400 text-xs mt-1">স্বাভাবিক ১১ ডিজিটের জরুরি নম্বর দিন</p>
+          </div>
+
+          <!-- Comments -->
+          <div class="space-y-2">
+            <label class="block text-sm font-semibold text-slate-200">৭. বিশেষ মন্তব্য</label>
+            <textarea id="notes" rows="3" placeholder="যেকোনো অনুরোধ বা খাবারের পছন্দ এখানে লিখুন..." class="w-full px-4 py-3.5 rounded-xl bg-slate-950/40 border border-white/10 text-white focus:outline-none focus:ring-1 focus:ring-amber-400 resize-none"></textarea>
+          </div>
+
+          <!-- Agreement Checkbox -->
+          <div class="space-y-1.5">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="agreement" class="h-5 w-5 rounded border-white/10 accent-amber-500 text-amber-500 mt-1">
+              <span class="text-sm text-slate-300 leading-snug">৮. আমি আয়োজকদের সকল নির্দেশনা মেনে চলতে সম্পূর্ণসম্মত আছি <span class="text-rose-400 font-bold">*</span></span>
+            </label>
+            <p id="error-agreement" class="hidden text-rose-400 text-xs">শর্তাবলীতে একমত হওয়া আবশ্যক</p>
+          </div>
+
+          <!-- Submit Submit Button -->
+          <button type="submit" id="btn-submit" class="w-full py-4 text-center rounded-full bg-gradient-to-r from-teal-400 to-teal-500 text-slate-950 font-bold text-base md:text-lg hover:from-teal-300 hover:to-teal-400 shadow-xl transition transform active:scale-95 disabled:pointer-events-none">রেজিস্ট্রেশন সাবমিট করুন</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq-section" class="py-20 px-4 bg-slate-950 text-white relative">
+    <div class="max-w-3xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">সাধারণ <span class="text-teal-400">জিজ্ঞাসা (FAQ)</span></h2>
+        <p class="text-slate-400">সহজ কিছু প্রশ্নোত্তর জেনে নিন।</p>
+      </div>
+      <div class="space-y-4">
+        <div class="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
+          <button class="w-full flex justify-between p-6 hover:bg-white/5 font-bold" onclick="toggleFaq(0)">
+            <span>ভ্রমণ বা ট্যুরের সম্ভাব্য মোট খরচ কত হতে পারে?</span>
+            <span id="faq-icon-0">▼</span>
+          </button>
+          <div id="faq-ans-0" class="hidden p-6 pt-0 text-slate-300 text-sm border-t border-white/10">সম্ভাব্য খরচ জনপ্রতি ২৫০ থেকে ৩০০ টাকা মাত্র। খাবারের বিল ও ট্রেনের টিকিট ভাড়া এর অন্তর্ভুক্ত থাকবে।</div>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
+          <button class="w-full flex justify-between p-6 hover:bg-white/5 font-bold" onclick="toggleFaq(1)">
+            <span>টাকা কোথায় বা কার কাছে জমা দেবো?</span>
+            <span id="faq-icon-1">▼</span>
+          </button>
+          <div id="faq-ans-1" class="hidden p-6 pt-0 text-slate-300 text-sm border-t border-white/10">পেমেন্ট সরাসরি ক্যাশ অথবা জি এম রবিউল হাসানের (01964334759) বিকাশ/নগদে জমা দিতে পারবেন।</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contacts -->
+  <section id="contact-section" class="py-20 px-4 bg-slate-900 text-white">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">যেকোনো প্রয়োজনে <span class="text-amber-400">যোগাযোগ করুন</span></h2>
+        <p class="text-slate-400">বিভাগীয় প্রতিনিধিদের সাথে যেকোনো সময় যোগাযোগ করুন।</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+        <div class="p-6 rounded-2xl bg-white/5 border border-white/10 text-center flex flex-col items-center">
+          <h3 class="text-lg md:text-xl font-bold">জি এম রবিউল হাসান</h3>
+          <p class="text-xs text-slate-400 mb-6">প্রধান সমন্বয়কারী, মার্কেটিং বিভাগ</p>
+          <div class="flex gap-3 w-full">
+            <a href="tel:01964334759" class="flex-1 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-sm text-center block">কল করুন</a>
+            <a href="https://wa.me/8801964334759" target="_blank" class="flex-1 py-3 rounded-xl border border-emerald-500/20 text-emerald-400 text-sm text-center block bg-emerald-600/10">হোয়াটসঅ্যাপ</a>
+          </div>
+        </div>
+        <div class="p-6 rounded-2xl bg-white/5 border border-white/10 text-center flex flex-col items-center">
+          <h3 class="text-lg md:text-xl font-bold">পাপড়ি চক্রবর্তী</h3>
+          <p class="text-xs text-slate-400 mb-6">সমন্বয়কারী, মার্কেটিং বিভাগ</p>
+          <div class="flex gap-3 w-full">
+            <a href="tel:01964334759" class="flex-1 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-sm text-center block">কল করুন</a>
+            <a href="https://wa.me/8801964334759" target="_blank" class="flex-1 py-3 rounded-xl border border-emerald-500/20 text-emerald-400 text-sm text-center block bg-emerald-600/10">হোয়াটসঅ্যাপ</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-slate-950 border-t border-white/5 py-10 px-6 text-slate-400 text-sm">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 text-center">
+      <div>
+        <p class="font-bold text-white mb-1.5">মার্কেটিং বিভাগ, আযমখান কমার্স কলেজ</p>
+        <p class="text-xs text-slate-500">© ২০২৬ সর্বস্বত্ব সংরক্ষিত। এটি একটি ঘরোয়া ট্যুর প্রোগ্রাম।</p>
+      </div>
+      <div>
+        <a href="admin.html" class="text-slate-500 hover:text-amber-400 text-xs font-bold block">অ্যাডমিন প্রবেশ</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Script link references -->
+  <script src="script.js"></script>
+</body>
+</html>
