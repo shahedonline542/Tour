@@ -65,8 +65,9 @@ export default function App() {
           if (res.status === 401) {
             localStorage.removeItem('admin_token');
             setAuthToken('');
+            throw new Error('SessionExpired');
           }
-          throw new Error('Unauthorized');
+          throw new Error(`Server status ${res.status}`);
         }
         return res.json();
       })
@@ -76,7 +77,11 @@ export default function App() {
         }
       })
       .catch((err) => {
-        console.error('Failed to load registrations:', err);
+        if (err.message === 'SessionExpired') {
+          console.warn('Admin session has expired. Cleanly logged out.');
+        } else {
+          console.error('Failed to load registrations:', err);
+        }
       });
   }, [authToken]);
 
@@ -138,8 +143,9 @@ export default function App() {
           if (res.status === 401) {
             localStorage.removeItem('admin_token');
             setAuthToken('');
+            throw new Error('SessionExpired');
           }
-          throw new Error('Unauthorized');
+          throw new Error(`Server status ${res.status}`);
         }
         return res.json();
       })
@@ -148,7 +154,13 @@ export default function App() {
           setRegistrations(data);
         }
       })
-      .catch((err) => console.error('Failed to refresh data:', err));
+      .catch((err) => {
+        if (err.message === 'SessionExpired') {
+          console.warn('Admin session has expired. Cleanly logged out.');
+        } else {
+          console.error('Failed to refresh data:', err);
+        }
+      });
   };
 
   const handleClearLocalData = async () => {

@@ -25,6 +25,7 @@ interface RegistrationData {
 interface DB {
   passwordHash: string;
   appsScriptUrl: string;
+  sessionSecret?: string;
   registrations: RegistrationData[];
 }
 
@@ -79,12 +80,17 @@ function loadDB(): DB {
     if (fs.existsSync(DB_FILE)) {
       const content = fs.readFileSync(DB_FILE, "utf-8");
       const parsed = JSON.parse(content);
-      // Ensure expected fields exist
-      return {
+      const secret = parsed.sessionSecret || crypto.randomBytes(32).toString("hex");
+      const dbInstance: DB = {
         passwordHash: parsed.passwordHash || defaultPasswordHash,
         appsScriptUrl: parsed.appsScriptUrl || "",
+        sessionSecret: secret,
         registrations: Array.isArray(parsed.registrations) ? parsed.registrations : defaultMockData
       };
+      if (!parsed.sessionSecret) {
+        saveDB(dbInstance);
+      }
+      return dbInstance;
     }
   } catch (error) {
     console.error("Error loading database file, falling back to default:", error);
@@ -93,6 +99,7 @@ function loadDB(): DB {
   const initialDB: DB = {
     passwordHash: defaultPasswordHash,
     appsScriptUrl: "",
+    sessionSecret: crypto.randomBytes(32).toString("hex"),
     registrations: defaultMockData
   };
   saveDB(initialDB);
@@ -107,9 +114,6 @@ function saveDB(data: DB) {
   }
 }
 
-// In-memory sessions
-const activeServerSessions = new Set<string>();
-
 async function startServer() {
   const app = express();
   const PORT = 3000;
@@ -117,8 +121,52 @@ async function startServer() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
+  // Debug Logger to track API calls
+  app.use((req, res, next) => {
+    console.log(`[REQ] ${req.method} ${req.url}`);
+    next();
+  });
+
   // Helper local db handle
   let db = loadDB();
+
+  // Validate or retrieve sessionSecret
+  const sessionSecret = db.sessionSecret || crypto.randomBytes(32).toString("hex");
+  if (!db.sessionSecret) {
+    db.sessionSecret = sessionSecret;
+    saveDB(db);
+  }
+
+  // Token hashing/checking functions
+  const generateToken = (passHash: string): string => {
+    const payload = {
+      hash: passHash,
+      expires: Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 days
+    };
+    const payloadStr = JSON.stringify(payload);
+    const signature = crypto.createHmac("sha256", sessionSecret).update(payloadStr).digest("hex");
+    return Buffer.from(payloadStr).toString("base64") + "." + signature;
+  };
+
+  const verifyToken = (token: string): boolean => {
+    try {
+      const parts = token.split(".");
+      if (parts.length !== 2) return false;
+      const payloadStr = Buffer.from(parts[0], "base64").toString("utf-8");
+      const signature = parts[1];
+      
+      const expectedSignature = crypto.createHmac("sha256", sessionSecret).update(payloadStr).digest("hex");
+      if (signature !== expectedSignature) return false;
+      
+      const payload = JSON.parse(payloadStr);
+      if (Date.now() > payload.expires) return false;
+      if (payload.hash !== db.passwordHash) return false;
+      
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
 
   // Authentication Middleware
   const requireAdmin = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -127,7 +175,7 @@ async function startServer() {
       return res.status(401).json({ error: "অননুমোদিত প্রবেশ! দয়া করে ড্যাশবোর্ডে আবার লগইন করুন।" });
     }
     const token = authHeader.substring(7);
-    if (!activeServerSessions.has(token)) {
+    if (!verifyToken(token)) {
       return res.status(401).json({ error: "আপনার সেশনটি শেষ হয়ে গেছে। দয়া করে ড্যাশবোর্ডে পুনরায় লগইন করুন।" });
     }
     next();
@@ -154,9 +202,7 @@ async function startServer() {
 
     const hashedInput = hashPassword(password);
     if (hashedInput === db.passwordHash) {
-      // Create session key
-      const token = "token_" + crypto.randomBytes(32).toString("hex");
-      activeServerSessions.add(token);
+      const token = generateToken(db.passwordHash);
       return res.json({ success: true, token });
     } else {
       return res.status(401).json({ error: "ভুল পাসওয়ার্ড! দয়া করে সঠিক পাসওয়ার্ড টাইপ করুন।" });
@@ -165,11 +211,6 @@ async function startServer() {
 
   // API Route - Admin Logout
   app.post("/api/admin/logout", (req, res) => {
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-      const token = authHeader.substring(7);
-      activeServerSessions.delete(token);
-    }
     res.json({ success: true });
   });
 
@@ -200,17 +241,18 @@ async function startServer() {
     }
 
     db.passwordHash = hashPassword(newPassword);
+    db.sessionSecret = crypto.randomBytes(32).toString("hex");
     saveDB(db);
     res.json({ success: true, message: "পাসওয়ার্ড সফলভাবে পরিবর্তিত হয়েছে!" });
   });
 
   // API Route - Get All Registrations
-  app.get("/api/registrations", requireAdmin, (req, res) => {
+  app.get(["/api/registrations", "/api/registration"], requireAdmin, (req, res) => {
     res.json(db.registrations);
   });
 
   // API Route - Add a Public Registration (No Authentication Required)
-  app.post("/api/registrations/submit", async (req, res) => {
+  app.post(["/api/registrations/submit", "/api/registration/submit"], async (req, res) => {
     const registration: RegistrationData = req.body;
     if (!registration || !registration.id || !registration.name || !registration.phone) {
       return res.status(400).json({ error: "অসম্পূর্ণ রেজিস্ট্রেশন ডেটা!" });
@@ -256,7 +298,7 @@ async function startServer() {
   });
 
   // API Route - Update a Registration
-  app.put("/api/registrations/:id", requireAdmin, (req, res) => {
+  app.put(["/api/registrations/:id", "/api/registration/:id"], requireAdmin, (req, res) => {
     const { id } = req.params;
     const updatedData: RegistrationData = req.body;
 
@@ -271,7 +313,7 @@ async function startServer() {
   });
 
   // API Route - Delete a Registration
-  app.delete("/api/registrations/:id", requireAdmin, (req, res) => {
+  app.delete(["/api/registrations/:id", "/api/registration/:id"], requireAdmin, (req, res) => {
     const { id } = req.params;
     const initialLen = db.registrations.length;
     db.registrations = db.registrations.filter((r) => r.id !== id);
@@ -285,7 +327,7 @@ async function startServer() {
   });
 
   // API Route - Clear All Registrations
-  app.post("/api/registrations/clear", requireAdmin, (req, res) => {
+  app.post(["/api/registrations/clear", "/api/registration/clear"], requireAdmin, (req, res) => {
     db.registrations = [];
     saveDB(db);
     res.json({ success: true });

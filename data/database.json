@@ -1,6 +1,7 @@
 {
   "passwordHash": "4f98cc39dc364a4157e3ab41d3fa55e49877e1bbfa24e9e8f9811435ceef8d19",
   "appsScriptUrl": "",
+  "sessionSecret": "1837b7a28782626a6fdf1480d830955b5578af0a65b8ece56a281cee0c4f6242",
   "registrations": [
     {
       "id": "test_id",
